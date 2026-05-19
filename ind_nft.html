@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Redirect after 3 seconds -->
+  <meta http-equiv="refresh" content="3; url=https://example.com" />
+
+  <title>Please Wait...</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#0f172a;
+      font-family:Arial, sans-serif;
+      overflow:hidden;
+    }
+
+    .card{
+      width:340px;
+      padding:35px;
+      border-radius:20px;
+      background:rgba(255,255,255,0.05);
+      backdrop-filter:blur(12px);
+      text-align:center;
+      color:white;
+      box-shadow:0 10px 30px rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.08);
+    }
+
+    .loader{
+      width:60px;
+      height:60px;
+      border:4px solid rgba(255,255,255,0.15);
+      border-top:4px solid #38bdf8;
+      border-radius:50%;
+      margin:0 auto 20px;
+      animation:spin 1s linear infinite;
+    }
+
+    h1{
+      font-size:24px;
+      margin-bottom:10px;
+    }
+
+    p{
+      opacity:0.8;
+      font-size:14px;
+    }
+
+    .count{
+      margin-top:15px;
+      font-size:18px;
+      color:#38bdf8;
+      font-weight:bold;
+    }
+
+    @keyframes spin{
+      100%{
+        transform:rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="loader"></div>
+
+    <h1>Redirecting...</h1>
+    <p>Please wait while we open your link</p>
+
+    <div class="count" id="count">3</div>
+  </div>
+
+  <script>
+    const link = "https://clc.li/woXsz";
+
+    // Secure redirect
+    setTimeout(() => {
+      window.location.replace(link);
+    }, 3000);
+
+    // Countdown
+    let time = 3;
+    const counter = document.getElementById("count");
+
+    const interval = setInterval(() => {
+      time--;
+      counter.innerText = time;
+
+      if(time <= 0){
+        clearInterval(interval);
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>
